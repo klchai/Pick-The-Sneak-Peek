@@ -18,7 +18,7 @@ Replace it with programs that:
 from sys import argv
 from sklearn.base import BaseEstimator
 from sklearn.decomposition import TruncatedSVD
-from zDataManager import DataManager # The class provided by binome 1
+from data_manager import DataManager # The class provided by binome 1
 # Note: if zDataManager is not ready, use the mother class DataManager
 from sklearn.decomposition import PCA
 
