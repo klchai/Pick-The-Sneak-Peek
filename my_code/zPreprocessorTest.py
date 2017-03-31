@@ -38,5 +38,5 @@ Y = D.data['Y_train']
 plt.scatter(X[:, 0], X[:, 1])
 plt.xlabel('PC1')
 plt.ylabel('PC2')
-plt.colorbar()
+#plt.colorbar()
 plt.show()
