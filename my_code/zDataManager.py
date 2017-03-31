@@ -56,7 +56,7 @@ class DataManager(data_manager.DataManager):
     def toDF(self, set_name):
         ''' Change a given data subset to a data Panda's frame.
             set_name is 'train', 'valid' or 'test'.'''
-        DF = pd.DataFrame(self.data['X_'+set_name])
+        DF = pd.DataFrame(self.data['basename_'+set_name])
         # For training examples, we can add the target values as
         # a last column: this is convenient to use seaborn
         # Look at http://seaborn.pydata.org/tutorial/axis_grids.html for other ideas
@@ -92,11 +92,11 @@ if __name__=="__main__":
         output_dir = "../res"
     else:
         input_dir = argv[1]
-        output_dir = argv[2];
+        output_dir = argv[2]
         
     print("Using input_dir: " + input_dir)
     print("Using output_dir: " + output_dir)
-    
+        
     basename = 'movies'
     D = DataManager(basename, input_dir)
     print D
