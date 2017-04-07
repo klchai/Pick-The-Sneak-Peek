@@ -56,13 +56,14 @@ class DataManager(data_manager.DataManager):
     def toDF(self, set_name):
         ''' Change a given data subset to a data Panda's frame.
             set_name is 'train', 'valid' or 'test'.'''
-        DF = pd.DataFrame(self.data['basename_'+set_name])
+        DF = pd.DataFrame(self.data['X_'+set_name])
+        #DF = pd.DataFrame(self.data['movies_train'])
         # For training examples, we can add the target values as
         # a last column: this is convenient to use seaborn
         # Look at http://seaborn.pydata.org/tutorial/axis_grids.html for other ideas
         if set_name == 'train':
-            Y = self.data['Y_train']
-            DF = DF.assign(target=Y)          
+            #Y = self.data['Y_train']
+            DF = DF.assign(target='movies')          
         return DF
 
     def DataStats(self, set_name):
@@ -77,6 +78,9 @@ class DataManager(data_manager.DataManager):
             sns.pairplot(DF.ix[:, [var1, var2, "target"]], hue="target")
         else:
             sns.pairplot(DF.ix[:, [var1, var2]])
+            
+    def convertor(self, X):
+        return X.toarray()
 
     def ShowSomethingElse(self):
         ''' Surprise me.'''
@@ -85,21 +89,21 @@ class DataManager(data_manager.DataManager):
         pass
     
 
-if __name__=="__main__":
+#if __name__=="__main__":
     # We can use this to run this file as a script and test the DataManager
-    if len(argv)==1: # Use the default input and output directories if no arguments are provided
-        input_dir = "../public_data"
-        output_dir = "../res"
-    else:
-        input_dir = argv[1]
-        output_dir = argv[2]
-        
-    print("Using input_dir: " + input_dir)
-    print("Using output_dir: " + output_dir)
-        
-    basename = 'movies'
-    D = DataManager(basename, input_dir)
-    print D
+#    if len(argv)==1: # Use the default input and output directories if no arguments are provided
+#        input_dir = "../public_data"
+#        output_dir = "../res"
+#    else:
+#        input_dir = argv[1]
+#        output_dir = argv[2];
+#        
+#    print("Using input_dir: " + input_dir)
+#    print("Using output_dir: " + output_dir)
     
-    D.DataStats('train')
-    D.ShowScatter(1, 2, 'train')
+#    basename = 'movies'
+#    D = DataManager(basename, input_dir)
+#    print D
+    
+#    D.DataStats('train')
+#    D.ShowScatter(1, 2, 'train')
