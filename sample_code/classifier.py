@@ -3,8 +3,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.naive_bayes import BernoulliNB, MultinomialNB
 
-from sklearn.svm import SVC
-
 import pickle
 
 
@@ -13,8 +11,8 @@ class Classifier(BaseEstimator):
         pass
 
     def fit(self, X, y):
-        self.clf = SVC(kernel='linear', decision_function_shape='ovo')
-        self.clf = self.clf.fit(X, y)
+        self.clf = BernoulliNB(alpha=.005)
+        self.clf = OneVsRestClassifier(self.clf).fit(X, y)
 
     def predict(self, X):
         return self.clf.predict(X)
