@@ -13,7 +13,8 @@ import numpy as np
 from zDataManager import DataManager
 from zClassifier import Classifier, Classifier2
 from sklearn.metrics import accuracy_score 
-from sklearn.model_selection import cross_val_score
+from sklearn.cross_validation import cross_val_score
+from zPreprocessor import Preprocessor
 
 input_dir = "../public_data"
 output_dir = "../res"
@@ -21,6 +22,13 @@ output_dir = "../res"
 basename = 'movies'
 D = DataManager(basename, input_dir) # Load data
 print D
+
+Prepro = Preprocessor()
+
+# Preprocess on the data and load it back into D
+D.data['X_train'] = Prepro.fit_transform(D.data['X_train'], D.data['Y_train'])
+D.data['X_valid'] = Prepro.transform(D.data['X_valid'])
+D.data['X_test'] = Prepro.transform(D.data['X_test'])
 
 def ebar(score, sample_num):
     '''ebar calculates the error bar for the classification score (accuracy or error rate)

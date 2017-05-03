@@ -8,7 +8,7 @@ Created on Sat Mar 11 08:04:23 2017
 This is an example of program that tests the Iris challenge Preprocessor class.
 Another style is to incorporate the test as a main function in the Data manager class itself.
 """
-from data_manager import DataManager
+from zDataManager import DataManager
 from zPreprocessor import Preprocessor
 input_dir = "../public_data"
 output_dir = "../res"

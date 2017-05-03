@@ -9,8 +9,6 @@ This is an example of program that tests the Iris challenge Data Manager class.
 Another style is to incorporate the test as a main function in the Data manager class itself.
 """
 from zDataManager import DataManager
-#input_dir = "../public_data"
-#output_dir = "../res"
 mypath = "../sample_code"
 from sys import argv, path
 from os.path import abspath
@@ -30,14 +28,4 @@ if __name__=="__main__":
     
     basename = 'movies'
     D = DataManager(basename, input_dir)
-    print D
-    
-    D.DataStats('train')
-    D.ShowScatter(1, 2, 'train')
-    
-#basename = 'movies'
-#D = DataManager(basename, input_dir)
-#print D
-#   
-#D.DataStats('train')
-#D.ShowScatter(1, 2, 'train')
+

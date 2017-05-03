@@ -41,6 +41,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
+import numpy
 
 # Mother class
 import data_manager
@@ -51,41 +52,77 @@ class DataManager(data_manager.DataManager):
        unless we want to add or change some data members.
        '''
        
-#    def __init__(self, basename="", input_dir=""):
-#        ''' New contructor.'''
-#        DataManager.__init__(self, basename, input_dir)
+    def __init__(self, basename="", input_dir=""):
+        ''' New contructor.'''
+        data_manager.DataManager.__init__(self, basename, input_dir)
+        self.labelnums = len(self.data['Y_train'][0,:])
+        self.label_name = None
         # So something here
-    
+
+    def getLabel_name(self,label_name):
+        self.label_name = label_name[0:self.labelnums]
+
+    def ToArray(self,x):
+        if isinstance(x,numpy.ndarray):
+            return x
+        else:
+            return x.toarray()
+
     def toDF(self, set_name):
         ''' Change a given data subset to a data Panda's frame.
             set_name is 'train', 'valid' or 'test'.'''
-        DF = pd.DataFrame(self.data['X_'+set_name])
+        DF = pd.DataFrame(self.ToArray(self.data['X_' + set_name]))
         # For training examples, we can add the target values as
         # a last column: this is convenient to use seaborn
         # Look at http://seaborn.pydata.org/tutorial/axis_grids.html for other ideas
         if set_name == 'train':
             Y = self.data['Y_train']
-            DF = DF.assign(target=Y)          
+            for i in range(self.labelnums):
+                if self.label_name == None:
+                    DF['label_' + str(i)] = Y[:, i]
+                else:
+                    DF[self.label_name[i]] = Y[:,i]
         return DF
+
 
     def DataStats(self, set_name):
         ''' Display simple data statistics'''
         DF = self.toDF(set_name)
         print(DF.describe())
     
-    def ShowScatter(self, var1, var2, set_name):
-        ''' Show scatter plots.'''
+    def Init_ShowScatter(self, var1, var2, set_name,label=None):
         DF = self.toDF(set_name)
+        ''' Show scatter plots.'''
+        if label == None:
+            plt.scatter(DF[var1], DF[var2], marker='o', color='r', label='1', s=20)
+            plt.xlabel('feature_' + str(0))
+            plt.ylabel('feature_' + str(5))
+        else:
+            plt.scatter(DF[var1][DF[label] == 1], DF[var2][DF[label] == 1], marker='o', color='r', label='1', s=20)
+            plt.scatter(DF[var1][DF[label] == 0], DF[var2][DF[label] == 0], marker='o', color='b', label='0', s=20)
+            plt.legend(loc='upper right')
+            plt.xlabel('feature_' + str(0))
+            plt.ylabel('feature_' + str(5))
+            plt.title(label)
+        plt.show()
+
+    def ShowScatter(D, var1, var2, set_name, label):
+        ''' Show scatter plots.'''
+        DF = D.toDF(set_name)
         if set_name == 'train':
-            sns.pairplot(DF.ix[:, [var1, var2, "target"]], hue="target")
+            sns.pairplot(DF.ix[:, [var1, var2, label]], hue=label)
         else:
             sns.pairplot(DF.ix[:, [var1, var2]])
         sns.plt.show()
 
-    def ShowDistplot(self, var1, set_name):
+    def ShowDistplot(self, set_name,var1,var2=None):
         ''' Show histogram plots.'''
         DF = self.toDF(set_name)
-        sns.distplot(DF.ix[:, [var1]])
+        if var2==None:
+            g = sns.FacetGrid(DF)
+        else:
+            g = sns.FacetGrid(DF,var2)
+        g.map(sns.distplot, var1)
         sns.plt.show()
 
     def ShowJointplot(self, var1, var2, set_name):
@@ -94,66 +131,43 @@ class DataManager(data_manager.DataManager):
         sns.jointplot(x=var1, y=var2, data=DF, kind='kde')
         sns.plt.show()
 
-    def ShowHeatmap(self, choose, set_name):
-        '''Show Heatmap plot.'''
+    def ShowHeatmap(self, set_name,choose=None):
         DF = self.toDF(set_name)
-        sns.heatmap(DF.ix[choose, :])
+        if choose == None:
+            featurelist = [0, 1,2,3,4,5,6,7,8,9]
+            if set_name == 'train':
+                choose = featurelist + self.label_name
+            else:
+                choose = featurelist
+        sns.heatmap(DF.ix[0:50, choose])
         sns.plt.show()
 
-    def ShowCorrcoefHeatmap(self, set_name):
+
+    def ShowCorrcoefHeatmap(self, set_name,choose=None):
         '''Show Heatmap of Correlation Matrix'''
         DF = self.toDF(set_name)
-        sns.heatmap(np.corrcoef(np.array(DF)))
+        corr = DF.corr(method='pearson', min_periods=1)
+        sns.heatmap(corr)
         sns.plt.show()
 
     def PCA(self, num, set_name):
-        DF = self.toDF(set_name)
-        del DF['target']
         pca = PCA(n_components=num)
-        return pca.fit_transform(np.array(DF))
+        return pca.fit_transform(np.array(self.ToArray(self.data['X_' + set_name])))
 
-    def ShowJointGrid_PCA(self, num, set_name):
+    def ShowJointGrid_PCA(self, num, set_name,label):
         from mpl_toolkits.mplot3d import Axes3D
         data = self.PCA(num, set_name)
         DF = self.toDF(set_name)
         fig = plt.figure()
         if num == 3:
             ax = fig.gca(projection='3d')
-            ax.scatter(data[:, 0], data[:, 1], data[:, 2], c=DF['target'], cmap=plt.cm.spectral)
+            ax.scatter(data[:, 0], data[:, 1], data[:, 2], c=DF[label], cmap=plt.cm.spectral)
         elif num == 2:
             ax = fig.gca()
-            ax.scatter(data[:, 0], data[:, 1], c=DF['target'], cmap=plt.cm.spectral)
+            ax.scatter(data[:, 0], data[:, 1], c=DF[label], cmap=plt.cm.spectral)
         plt.show()
 
     def ShowJointPlot_PCA(self, set_name):
         data = self.PCA(2, set_name)
-        DF = self.toDF(set_name)
         sns.jointplot(x=data[:, 0], y=data[:, 1], kind='kde')
         sns.plt.show()
-    
-
-if __name__=="__main__":
-    # We can use this to run this file as a script and test the DataManager
-    if len(argv)==1: # Use the default input and output directories if no arguments are provided
-        input_dir = "../public_data"
-        output_dir = "../res"
-    else:
-        input_dir = argv[1]
-        output_dir = argv[2];
-        
-    print("Using input_dir: " + input_dir)
-    print("Using output_dir: " + output_dir)
-    
-    basename = 'movies'
-    D = DataManager(basename, input_dir)
-    print(D)
-    
-    D.DataStats('train')
-    D.ShowScatter(1, 2, 'train')
-    D.ShowDistplot(1, 'train')
-    D.ShowJointplot(1, 2, 'train')
-    D.ShowJointPlot_PCA('train')
-    D.ShowHeatmap(range(10), 'train')
-    D.ShowCorrcoefHeatmap('train')
-    D.ShowJointGridofPCA(2, 'train')
-    D.ShowJointGridofPCA(3, 'train')
