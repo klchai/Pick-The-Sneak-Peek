@@ -108,7 +108,7 @@ if __name__=="__main__":
     
     classifier_dict = {
             'KNN': Classifier2(),
-            'BernouilliNB': Classifier()
+            'BernoulliNB': Classifier()
             }
     
     for key in classifier_dict:
